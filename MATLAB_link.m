@@ -1,16 +1,18 @@
 % =========================================================================
 % STEP 1: LINKING MATLAB TO CADENCE SPECTRE TOOLBOX
 % =========================================================================
-% This script adds the Cadence results reader (cds_srr) to MATLAB's path.
-% Change the path below to match your server's installation directory.
 
-cadence_path = 'put/your/path';
-addpath(cadence_path);
+% Add both the main matlab folder and the 64bit subfolder
+cadence_path_main = '/usr/local/cadence/MMSIM141/tools.lnx86/spectre/matlab';
+cadence_path_64 = fullfile(cadence_path_main, '64bit');
 
-% Check if the link is successful
-if exist('cds_srr', 'file')
-    disp('Cadence Toolbox linked successfully!');
-    help cds_srr % Displays documentation
+addpath(cadence_path_main);
+addpath(cadence_path_64);
+
+% Check for the REAL engine (cds_innersrr) not just the wrapper (cds_srr)
+if exist('cds_innersrr', 'file') == 3 % 3 means it's a compiled MEX file
+    disp('Cadence Toolbox (including 64-bit MEX files) linked successfully!');
 else
-    error('Path not found. Check your Cadence installation directory.');
+    disp('Warning: cds_srr found, but cds_innersrr (MEX file) is missing!');
+    error('Please verify that the "64bit" folder exists in your Cadence MATLAB directory.');
 end
