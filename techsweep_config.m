@@ -1,29 +1,18 @@
-% =========================================================================
-% Analog IC Design Master Script using gm/ID Methodology
-% Technology: 65nm CMOS
-% Author: Hassan Shehata
-% Institution: Mansoura University
-% Date: March 2026
-%
-% Acknowledgment: This script utilizes the 'lookup' functions developed 
-% by Prof. Boris Murmann (Stanford University) for data interpolation.
-% =========================================================================
-
 function c = techsweep_config_generic
 % GENERIC TECHNOLOGY CONFIGURATION FILE
 % Use this template to adapt any PDK (TSMC, UMC, GPDK, etc.)
 
 %% 1. Path & Model Definitions
-c.modelfile = 'model_file_path'; % Full path to .scs file
-c.modelinfo = 'PDK & Node';             % Just a label for the plots
+c.modelfile = 'Your/model/path.scs'; % Full path to .scs file
+c.modelinfo = 'PDK_node';             % Just a label for the plots
 c.corner    = 'tt';                          % Typical corner name (e.g., tt, lib, nom)
 c.temp      = 300;                           % Temperature in Kelvin
 
 % Model Names (Find these using grep in the .scs file)
-c.modeln    = 'NMOS_Model'; 
-c.modelp    = 'PMOS_Model';
+c.modeln    = 'NMOS'; 
+c.modelp    = 'PMOS';
 
-% Output Database Names "LUTs"
+% Output Database Names
 c.savefilen = 'tech_nch';
 c.savefilep = 'tech_pch';
 
@@ -42,13 +31,14 @@ c.VDS = 0:c.VDS_step:c.VDS_max;
 c.VSB = 0:c.VSB_step:c.VSB_max;
 
 % Channel Length array (Adjust based on PDK Minimum L)
-c.LENGTH = [0.09:0.01:0.12]; 
+c.LENGTH = [0.09, 0.5, 1]; 
 c.WIDTH  = 10; % Fixed width for characterization
 c.NFING  = 5;  % Number of fingers
 
 %% 3. Variable Mapping (TO BE UPDATED AFTER RUNNING PDK_PROBE)
 % --- Copy & Paste this code into techsweep_config_generic.m ---
 
+% Variable mapping
 c.outvars = {'ID','VT','IGD','IGS','GM','GMB','GDS','CGG','CGS','CSG','CGD','CDG','CGB','CDD','CSS','VDSAT','VEARLY'};
 
 % MN Mapping
@@ -100,12 +90,12 @@ netlist = sprintf([...
 'vdsn (vdn 0) vsource dc=ds \n'...
 'vgsn (vgn 0) vsource dc=gs \n'...
 'vbsn (vbn 0) vsource dc=-sb \n'...
-'mn (vdn vgn 0 vbn) %s l=length w=%g*1u m=%g \n'... 
+'mn (vdn vgn 0 vbn) %s l=length*1u w=%g*1u m=%g \n'... 
 '// --- PMOS Instantiation --- \n'...
 'vdsp (vdp 0) vsource dc=-ds \n'...
 'vgsp (vgp 0) vsource dc=-gs \n'...
 'vbsp (vbp 0) vsource dc=sb \n'...
-'mp (vdp vgp 0 vbp) %s l=length w=%g*1u m=%g \n'... 
+'mp (vdp vgp 0 vbp) %s l=length*1u w=%g*1u m=%g \n'... 
 'options1 options rawfmt=psfbin rawfile="./techsweep.raw" redefinedparams=ignore \n'...
 'sweepvds sweep param=ds start=0 stop=%g step=%g { \n'...
 '  sweepvgs dc param=gs start=0 stop=%g step=%g \n'...
