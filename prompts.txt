@@ -1,22 +1,23 @@
 1) find /usr/local -type d -name "matlab" | grep "spectre"
 
-2)
-addpath('your_path/64bit');
-addpath('your_path');
-savepath;
+2) run MATLAB_link script
 
-3) run MATLAB_link script
-
-4) Find the model file
+3) Find the model file
 find ~/lib_name -type f -name "*.scs" -exec grep -iE "library|section" {} + | head -n 30
 
-5) Add the model file path to the config script
+4) Add the model file path to the config script
 
-6) Add the model name 
+5) Add the model name 
 grep -iE "model|subckt" model_path.scs | head -n 20
 
-7) run the techsweep_spectre in MATLAB command
+6) run the techsweep_spectre in MATLAB command
 
-8) run the pdk_probe script to get the mapping code
+7) run the pdk_probe script to get the mapping code
 
 9) put the mapping code in the config file 
+
+10) run the techsweep_spectre in MATLAB command again
+
+11) LUTs have generated
+
+12) run the gm_id_Designer in MATLAB command
