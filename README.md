@@ -1,4 +1,4 @@
-# 65nm gm/ID Characterization & Design Framework
+# gm/ID Characterization & Design Framework
 
 This repository provides a complete, automated framework for characterizing the **65nm CMOS** technology using the $g_m/I_D$ methodology. It acts as a bridge between Cadence Spectre and MATLAB, generating Lookup Tables (LUTs) and providing an interactive GUI for rapid analog IC sizing.
 
