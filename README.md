@@ -19,8 +19,8 @@ Based on Prof. Boris Murmann's $g_m/I_D$ starter kit, this fork has been heavily
 ## 🛠️ How to Use
 1. Clone this repository to your Linux environment with Cadence Virtuoso and MATLAB installed.
 2. Ensure you have the compiled `cds_srr` MEX files in your MATLAB path to read `.raw` files.
-3. Update the model path in `techsweep_config_65nm.m` to point to your local 65nm `toplevel.scs`.
-4. Run `techsweep_spectre.m` to generate the `.mat` databases (or use the pre-generated `65nch.mat` / `65pch.mat` included).
+3. Update the model path in `techsweep_confi.m` to point to your local model file `toplevel.scs`.
+4. Run `techsweep_spectre.m` to generate the `.mat` databases (or use the pre-generated `tech_nch.mat` / `tech_pch.mat` included).
 5. Open `gm_id_Designer.m` to launch the interactive design space.
 
 ## 📄 Documentation
