@@ -1,6 +1,12 @@
 % =========================================================================
 % STEP 1: LINKING MATLAB TO CADENCE SPECTRE TOOLBOX
 % =========================================================================
+% Analog IC Design Master Script using gm/ID Methodology
+% General For any Technology
+% Author: Hassan Shehata
+% Institution: Mansoura University
+% Date: March 2026
+% =========================================================================
 
 % Add both the main matlab folder and the 64bit subfolder
 cadence_path_main = '/usr/local/cadence/MMSIM141/tools.lnx86/spectre/matlab';
