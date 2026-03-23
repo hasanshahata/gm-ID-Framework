@@ -3,6 +3,12 @@
 % Purpose: Bypasses MATLAB struct shadowing by directly probing specific 
 %          signals from the Cadence database. 100% Bulletproof.
 % =========================================================================
+% Analog IC Design Master Script using gm/ID Methodology
+% General For any Technology
+% Author: Hassan Shehata
+% Institution: Mansoura University
+% Date: March 2026
+% =========================================================================
 clc; disp('Directly Probing Cadence Database for 17 Variables...');
 
 rawfile = 'techsweep.raw';
