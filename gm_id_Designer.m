@@ -14,7 +14,7 @@
 %   H  -- drop a draggable horizontal marker
 %   C  -- clear all markers
 %   T  -- toggle NMOS / PMOS
-%   F  -- Figure-of-Merit  (multi-FoM + FoM vs L subplot)
+%   F  -- Figure-of-Merit  (multi-FoM)
 %   P  -- custom plot (multi-Y overlay, dual y-axis)
 %   S  -- auto-sizing   (explicit gm/ID input field)
 %   D  -- exact sizing  (find L & W for target gain)
@@ -57,14 +57,14 @@ CLR.accent     = [0.27 0.73 1.00];
 State.nch              = nch;
 State.pch              = pch;
 State.current_dev      = 'nch';
-State.L_array          = [0.09,0.5,1];
+State.L_array          = [0.06,0.1, 0.2, 0.3,0.5,1];
 State.VDS_target       = 0.6;
 State.gm_id_range      = 5:0.5:25;
 State.last_design_report = 'No design generated yet.';
 State.CLR              = CLR;
 
 %% 4. Launch
-fig = figure('Name','UMC 90nm  |  gm/ID Design Space', ...
+fig = figure('Name','CMOS 65nm  |  gm/ID Design Space', ...
              'Position',[80 120 1280 420], ...
              'Color', CLR.bg);
 setappdata(fig,'State',State);
@@ -87,7 +87,7 @@ function update_main_plots(fig)
     dlabel   = 'NMOS'; if ~isN, dlabel='PMOS'; end
     colors   = CLR.nmos_lines; if ~isN, colors=CLR.pmos_lines; end
 
-    set(fig,'Name',sprintf('UMC 90nm  |  gm/ID Design Space  [%s]  VDS=%.2fV', dlabel, VDS));
+    set(fig,'Name',sprintf('CMOS 65nm  |  gm/ID Design Space  [%s]  VDS=%.2fV', dlabel, VDS));
 
     nL  = numel(L);
     leg = cell(1,nL);
@@ -152,21 +152,31 @@ function cadence_shortcuts(fig, event)
 
         % ================================================================
         case 'v'
+            cur_xlabel = get(get(ax,'XLabel'),'String');
+            % Only place cursor on axes sharing the same x-axis label
+            % (avoids L-axis vs gm/ID-axis conflict in D/I windows)
+            same_x = false(size(all_axes));
             for i = 1:numel(all_axes)
-                xl = xline(all_axes(i), x_val, ...
+                xi_lbl = get(get(all_axes(i),'XLabel'),'String');
+                same_x(i) = strcmp(strtrim(xi_lbl), strtrim(cur_xlabel));
+            end
+            linked_axes = all_axes(same_x);
+            for i = 1:numel(linked_axes)
+                xl = xline(linked_axes(i), x_val, ...
                     'Color',CLR.marker_v, 'LineWidth',1.8, ...
-                    'Label',sprintf('  gm/ID=%.2f  ',x_val), ...
-                    'Tag',['v_cursor_' cid]);
+                    'Label', sprintf('  %.4g  ', x_val), ...
+                    'Tag',['v_cursor_' cid], ...
+                    'HandleVisibility','off');
                 xl.ButtonDownFcn = @(s,~) startDragV(s,fig,cid);
-                n_curves_v = numel(findobj(all_axes(i),'Tag','data_curve'));
+                n_curves_v = numel(findobj(linked_axes(i),'Tag','data_curve'));
                 for jv = 1:n_curves_v
-                    plot(all_axes(i),NaN,NaN,'o','Color',CLR.marker_v, ...
+                    plot(linked_axes(i),NaN,NaN,'o','Color',CLR.marker_v, ...
                         'MarkerFaceColor',CLR.marker_v,'MarkerSize',6, ...
-                        'Tag',['v_mark_' cid]);
-                    text(all_axes(i),NaN,NaN,'','Color',CLR.marker_v, ...
+                        'Tag',['v_mark_' cid],'HandleVisibility','off');
+                    text(linked_axes(i),NaN,NaN,'','Color',CLR.marker_v, ...
                         'BackgroundColor',CLR.panel,'EdgeColor',CLR.marker_v, ...
                         'Tag',['v_text_' cid],'FontSize',8,'Margin',2, ...
-                        'VerticalAlignment','bottom');
+                        'VerticalAlignment','bottom','HandleVisibility','off');
                 end
             end
             updateVI(fig,cid,x_val);
@@ -176,24 +186,25 @@ function cadence_shortcuts(fig, event)
             y_val = pt(1,2);
             yl = yline(ax, y_val, ...
                 'Color',CLR.marker_h, 'LineWidth',1.8, ...
-                'Label',sprintf('  y=%.3g  ',y_val), ...
-                'Tag',['h_cursor_' cid]);
+                'Label',sprintf('  %.4g  ',y_val), ...
+                'Tag',['h_cursor_' cid], ...
+                'HandleVisibility','off');
             yl.ButtonDownFcn = @(s,~) startDragH(s,fig,cid);
             n_curves_h = numel(findobj(ax,'Tag','data_curve'));
             for jh = 1:n_curves_h
                 plot(ax,NaN,NaN,'o','Color',CLR.marker_h, ...
                     'MarkerFaceColor',CLR.marker_h,'MarkerSize',6, ...
-                    'Tag',['h_mark_' cid]);
+                    'Tag',['h_mark_' cid],'HandleVisibility','off');
                 text(ax,NaN,NaN,'','Color',CLR.marker_h, ...
                     'BackgroundColor',CLR.panel,'EdgeColor',CLR.marker_h, ...
                     'Tag',['h_text_' cid],'FontSize',8,'Margin',2, ...
-                    'VerticalAlignment','bottom');
+                    'VerticalAlignment','bottom','HandleVisibility','off');
             end
             updateHI(ax,cid,y_val);
 
         % ================================================================
         case 'c'
-            delete(findobj(fig,'-regexp','Tag','^(v_|h_)'));
+            delete(findall(fig,'-regexp','Tag','^(v_|h_)'));
 
         % ================================================================
         case 't'
@@ -1569,11 +1580,7 @@ function show_sizing_window(State, rep, ...
              'Color',CLR.op_dot,'FontSize',9.5,'FontWeight','bold', ...
              'VerticalAlignment',va,'BackgroundColor',CLR.bg,'Margin',1);
 
-        if k >= 2
-            xlabel(ax,'g_m/I_D  (1/V)','Color',CLR.ax_fg,'FontSize',10);
-        else
-            set(ax,'XTickLabel',[]);
-        end
+        xlabel(ax,'g_m/I_D  (1/V)','Color',CLR.ax_fg,'FontSize',10);
         ylabel(ax,y_labels2{k},'Color',CLR.ax_fg,'FontSize',10);
         title(ax,titls2{k},'Color',CLR.ax_fg,'FontSize',10.5,'FontWeight','bold');
         ax_gmid(k) = ax;
@@ -1832,20 +1839,38 @@ function startDragV(~, fig, cid)
 end
 function dragV(~,~,fig,cid)
     ax=gca; nx=get(ax,'CurrentPoint'); nx=nx(1,1);
-    xls = findobj(fig,'Tag',['v_cursor_' cid]);
+    xls = findall(fig,'Tag',['v_cursor_' cid]);
     for kx=1:numel(xls)
         xls(kx).Value=nx;
-        xls(kx).Label=sprintf('  gm/ID=%.2f  ',nx);
+        parent_ax = ancestor(xls(kx),'axes');
+        if ~isempty(parent_ax)
+            xlbl = get(get(parent_ax,'XLabel'),'String');
+            if contains(xlbl,'L ') || strcmpi(strtrim(xlbl),'L  (um)')
+                xls(kx).Label=sprintf('  L=%.4f  ',nx);
+            else
+                xls(kx).Label=sprintf('  %.4g  ',nx);
+            end
+        else
+            xls(kx).Label=sprintf('  %.4g  ',nx);
+        end
     end
     updateVI(fig,cid,nx);
 end
 function updateVI(fig,cid,nx)
     allax = findobj(fig,'Type','axes');
-    marks = findobj(fig,'Tag',['v_mark_' cid]);
-    texts = findobj(fig,'Tag',['v_text_' cid]);
+    marks = findall(fig,'Tag',['v_mark_' cid]);
+    texts = findall(fig,'Tag',['v_text_' cid]);
+    % Only process axes that actually have this cursor line
+    cursor_axes = [];
+    for i = 1:numel(allax)
+        if ~isempty(findall(allax(i),'Tag',['v_cursor_' cid]))
+            cursor_axes(end+1) = allax(i); %#ok<AGROW>
+        end
+    end
     idx=1;
-    for i=1:numel(allax)
-        for dl=findobj(allax(i),'Tag','data_curve')'
+    for i=1:numel(cursor_axes)
+        for dl=findobj(cursor_axes(i),'Tag','data_curve')'
+            if idx > numel(marks), break; end
             xd=dl.XData; yd=dl.YData;
             if nx>=min(xd)&&nx<=max(xd)
                 [xu,iu]=unique(xd); yu=yd(iu);
@@ -1869,16 +1894,16 @@ function startDragH(~,fig,cid)
 end
 function dragH(~,~,fig,cid)
     ax=gca; ny=get(ax,'CurrentPoint'); ny=ny(1,2);
-    yls = findobj(ax,'Tag',['h_cursor_' cid]);
+    yls = findall(ax,'Tag',['h_cursor_' cid]);
     for ky=1:numel(yls)
         yls(ky).Value=ny;
-        yls(ky).Label=sprintf('  y=%.3g  ',ny);
+        yls(ky).Label=sprintf('  %.4g  ',ny);
     end
     updateHI(ax,cid,ny);
 end
 function updateHI(ax,cid,ny)
-    marks=findobj(ax,'Tag',['h_mark_' cid]);
-    texts=findobj(ax,'Tag',['h_text_' cid]);
+    marks=findall(ax,'Tag',['h_mark_' cid]);
+    texts=findall(ax,'Tag',['h_text_' cid]);
     dls=findobj(ax,'Tag','data_curve');
     for j=1:numel(dls)
         xd=dls(j).XData; yd=dls(j).YData;
@@ -1888,7 +1913,7 @@ function updateHI(ax,cid,ny)
             xi=interp1(yu,xu,ny,'linear');
             marks(j).XData=xi; marks(j).YData=ny;
             texts(j).Position=[xi ny 0];
-            texts(j).String=sprintf(' gm/ID=%.2f',xi);
+            texts(j).String=sprintf(' %.4g',xi);
         else
             marks(j).XData=NaN; marks(j).YData=NaN; texts(j).String='';
         end
