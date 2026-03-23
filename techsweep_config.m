@@ -1,3 +1,14 @@
+% =========================================================================
+% Analog IC Design Master Script using gm/ID Methodology
+% General For any Technology
+% Author: Hassan Shehata
+% Institution: Mansoura University
+% Date: March 2026
+%
+% Acknowledgment: This script utilizes the 'lookup' functions developed 
+% by Prof. Boris Murmann (Stanford University) for data interpolation.
+% =========================================================================
+
 function c = techsweep_config_generic
 % GENERIC TECHNOLOGY CONFIGURATION FILE
 % Use this template to adapt any PDK (TSMC, UMC, GPDK, etc.)
